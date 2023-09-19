@@ -1,0 +1,38 @@
+{
+	"name": "themehybrid/hybrid-log",
+	"description": "Log package for the Hybrid Core framework.",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"wordpress"
+	],
+	"authors": [
+		{
+			"name": "Theme Hybrid",
+			"email": "themehybrid@gmail.com",
+			"homepage": "https://themehybrid.com",
+			"role": "Developer"
+		}
+	],
+	"homepage": "https://github.com/themehybrid/hybrid-log",
+	"support": {
+		"issues": "https://github.com/themehybrid/hybrid-log/issues",
+		"forum": "https://themehybrid.com/board/forums/hybrid-core"
+	},
+	"require": {
+		"php": ">=8.0"
+	},
+	"suggest": {
+		"monolog/monolog": "Required for using the Log manager (^2.0 || ^3.0).",
+		"psr/log": "Required for using the Log middleware (^2.0 || ^3.0)"
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"autoload": {
+		"psr-4": {
+			"Hybrid\\Log\\": "src/"
+		},
+		"files": [
+			"src/functions-helpers.php"
+		]
+	}
+}
