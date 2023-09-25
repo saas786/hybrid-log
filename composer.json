@@ -19,11 +19,9 @@
 		"forum": "https://themehybrid.com/board/forums/hybrid-core"
 	},
 	"require": {
-		"php": ">=8.0"
-	},
-	"suggest": {
-		"monolog/monolog": "Required for using the Log manager (^2.0 || ^3.0).",
-		"psr/log": "Required for using the Log middleware (^2.0 || ^3.0)"
+		"php": ">=8.0",
+		"monolog/monolog": "^2.0 || ^3.0",
+		"psr/log": "^2.0 || ^3.0"
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,

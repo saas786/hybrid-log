@@ -62,7 +62,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may configure the log channels for your application. Out of
-    | the box, folio uses the Monolog PHP logging library. This gives
+    | the box, hybrid uses the Monolog PHP logging library. This gives
     | you a variety of powerful log handlers / formatters to utilize.
     |
     | Available Drivers: "single", "daily", "slack", "syslog",
@@ -82,12 +82,12 @@ return [
         ],
         'single'     => [
             'driver' => 'single',
-            'path'   => storage_path( 'logs/folio.log' ),
+            'path'   => storage_path( 'logs/hybrid.log' ),
             'level'  => env( 'LOG_LEVEL', 'debug' ),
         ],
         'daily'      => [
             'driver' => 'daily',
-            'path'   => storage_path( 'logs/folio.log' ),
+            'path'   => storage_path( 'logs/hybrid.log' ),
             'level'  => env( 'LOG_LEVEL', 'debug' ),
             'days'   => 14,
         ],
@@ -96,7 +96,7 @@ return [
             'handler' => NullHandler::class,
         ],
         'emergency'  => [
-            'path' => storage_path( 'logs/folio.log' ),
+            'path' => storage_path( 'logs/hybrid.log' ),
         ],
         'sentry'     => [
             'driver' => 'sentry',
