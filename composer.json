@@ -23,6 +23,9 @@
 		"monolog/monolog": "^2.0 || ^3.0",
 		"psr/log": "^2.0 || ^3.0"
 	},
+	"provide": {
+		"psr/log-implementation": "1.0|2.0|3.0"
+	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"autoload": {

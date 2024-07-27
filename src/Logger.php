@@ -48,8 +48,8 @@ class Logger implements LoggerInterface {
     /**
      * Log an emergency message to the logs.
      *
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function emergency( $message, array $context = [] ): void {
         $this->writeLog( __FUNCTION__, $message, $context );
@@ -58,8 +58,8 @@ class Logger implements LoggerInterface {
     /**
      * Log an alert message to the logs.
      *
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function alert( $message, array $context = [] ): void {
         $this->writeLog( __FUNCTION__, $message, $context );
@@ -68,8 +68,8 @@ class Logger implements LoggerInterface {
     /**
      * Log a critical message to the logs.
      *
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function critical( $message, array $context = [] ): void {
         $this->writeLog( __FUNCTION__, $message, $context );
@@ -78,8 +78,8 @@ class Logger implements LoggerInterface {
     /**
      * Log an error message to the logs.
      *
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function error( $message, array $context = [] ): void {
         $this->writeLog( __FUNCTION__, $message, $context );
@@ -88,8 +88,8 @@ class Logger implements LoggerInterface {
     /**
      * Log a warning message to the logs.
      *
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function warning( $message, array $context = [] ): void {
         $this->writeLog( __FUNCTION__, $message, $context );
@@ -98,8 +98,8 @@ class Logger implements LoggerInterface {
     /**
      * Log a notice to the logs.
      *
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function notice( $message, array $context = [] ): void {
         $this->writeLog( __FUNCTION__, $message, $context );
@@ -108,8 +108,8 @@ class Logger implements LoggerInterface {
     /**
      * Log an informational message to the logs.
      *
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function info( $message, array $context = [] ): void {
         $this->writeLog( __FUNCTION__, $message, $context );
@@ -118,8 +118,8 @@ class Logger implements LoggerInterface {
     /**
      * Log a debug message to the logs.
      *
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function debug( $message, array $context = [] ): void {
         $this->writeLog( __FUNCTION__, $message, $context );
@@ -128,9 +128,9 @@ class Logger implements LoggerInterface {
     /**
      * Log a message to the logs.
      *
-     * @param  string                                                                                       $level
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param string                                                                                       $level
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function log( $level, $message, array $context = [] ): void {
         $this->writeLog( $level, $message, $context );
@@ -139,9 +139,9 @@ class Logger implements LoggerInterface {
     /**
      * Dynamically pass log calls into the writer.
      *
-     * @param  string                                                                                       $level
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param string                                                                                       $level
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     public function write( $level, $message, array $context = [] ): void {
         $this->writeLog( $level, $message, $context );
@@ -150,9 +150,9 @@ class Logger implements LoggerInterface {
     /**
      * Write a message to the log.
      *
-     * @param  string                                                                                       $level
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
-     * @param  array                                                                                        $context
+     * @param string                                                                                       $level
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param array                                                                                        $context
      */
     protected function writeLog( $level, $message, $context ): void {
         $this->logger->{$level}(
@@ -212,9 +212,7 @@ class Logger implements LoggerInterface {
         // If the event dispatcher is set, we will pass along the parameters to the
         // log listeners. These are useful for building profilers or other tools
         // that aggregate all of the log messages for a given "request" cycle.
-        if ( isset( $this->dispatcher ) ) {
-            $this->dispatcher->dispatch( new MessageLogged( $level, $message, $context ) );
-        }
+        $this->dispatcher?->dispatch( new MessageLogged( $level, $message, $context ) );
     }
 
     /**
