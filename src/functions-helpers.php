@@ -12,8 +12,8 @@ if ( ! function_exists( __NAMESPACE__ . '\\info' ) ) {
     /**
      * Write some information to the log.
      *
-     * @param  string $message
-     * @param  array  $context
+     * @param string $message
+     * @param array  $context
      * @return void
      */
     function info( $message, $context = [] ) {
@@ -25,8 +25,8 @@ if ( ! function_exists( __NAMESPACE__ . '\\logger' ) ) {
     /**
      * Log a debug message to the logs.
      *
-     * @param  string|null $message
-     * @param  array       $context
+     * @param string|null $message
+     * @param array       $context
      * @return ($message is null ? \Hybrid\Log\LogManager : null)
      */
     function logger( $message = null, array $context = [] ) {
@@ -42,7 +42,7 @@ if ( ! function_exists( __NAMESPACE__ . '\\logs' ) ) {
     /**
      * Get a log driver instance.
      *
-     * @param  string|null $driver
+     * @param string|null $driver
      * @return ($driver is null ? \Hybrid\Log\LogManager : \Psr\Log\LoggerInterface)
      */
     function logs( $driver = null ) {
@@ -54,8 +54,8 @@ if ( ! function_exists( __NAMESPACE__ . '\\context' ) ) {
     /**
      * Get / set the specified context value.
      *
-     * @param  array|string|null $key
-     * @param  mixed             $default
+     * @param array|string|null $key
+     * @param mixed             $default
      * @return ($key is string ? mixed : \Hybrid\Log\Context\Repository)
      */
     function context( $key = null, $default = null ) {

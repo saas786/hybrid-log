@@ -18,7 +18,7 @@ trait ParsesLogConfiguration {
     /**
      * Parse the string level into a Monolog constant.
      *
-     * @param  array $config
+     * @param array $config
      * @return int
      * @throws \InvalidArgumentException
      */
@@ -35,7 +35,7 @@ trait ParsesLogConfiguration {
     /**
      * Parse the action level from the given configuration.
      *
-     * @param  array $config
+     * @param array $config
      * @return int
      * @throws \InvalidArgumentException
      */
@@ -52,7 +52,7 @@ trait ParsesLogConfiguration {
     /**
      * Extract the log channel from the given configuration.
      *
-     * @param  array $config
+     * @param array $config
      * @return string
      */
     protected function parseChannel( array $config ) {

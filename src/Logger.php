@@ -166,7 +166,7 @@ class Logger implements LoggerInterface {
     /**
      * Add context to all future logs.
      *
-     * @param  array $context
+     * @param array $context
      * @return $this
      */
     public function withContext( array $context = [] ) {
@@ -203,9 +203,9 @@ class Logger implements LoggerInterface {
     /**
      * Fires a log event.
      *
-     * @param  string $level
-     * @param  string $message
-     * @param  array  $context
+     * @param string $level
+     * @param string $message
+     * @param array  $context
      * @return void
      */
     protected function fireLogEvent( $level, $message, array $context = [] ) {
@@ -218,7 +218,7 @@ class Logger implements LoggerInterface {
     /**
      * Format the parameters for the logger.
      *
-     * @param  \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
      * @return string
      */
     protected function formatMessage( $message ) {
@@ -267,8 +267,8 @@ class Logger implements LoggerInterface {
     /**
      * Dynamically proxy method calls to the underlying logger.
      *
-     * @param  string $method
-     * @param  array  $parameters
+     * @param string $method
+     * @param array  $parameters
      * @return mixed
      */
     public function __call( $method, $parameters ) {

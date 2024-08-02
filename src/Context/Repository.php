@@ -52,7 +52,7 @@ class Repository {
     /**
      * Determine if the given key exists.
      *
-     * @param  string $key
+     * @param string $key
      * @return bool
      */
     public function has( $key ) {
@@ -62,7 +62,7 @@ class Repository {
     /**
      * Determine if the given key exists within the hidden context data.
      *
-     * @param  string $key
+     * @param string $key
      * @return bool
      */
     public function hasHidden( $key ) {
@@ -90,8 +90,8 @@ class Repository {
     /**
      * Retrieve the given key's value.
      *
-     * @param  string $key
-     * @param  mixed  $default
+     * @param string $key
+     * @param mixed  $default
      * @return mixed
      */
     public function get( $key, $default = null ) {
@@ -101,8 +101,8 @@ class Repository {
     /**
      * Retrieve the given key's hidden value.
      *
-     * @param  string $key
-     * @param  mixed  $default
+     * @param string $key
+     * @param mixed  $default
      * @return mixed
      */
     public function getHidden( $key, $default = null ) {
@@ -112,8 +112,8 @@ class Repository {
     /**
      * Retrieve the given key's value and then forget it.
      *
-     * @param  string $key
-     * @param  mixed  $default
+     * @param string $key
+     * @param mixed  $default
      * @return mixed
      */
     public function pull( $key, $default = null ) {
@@ -125,8 +125,8 @@ class Repository {
     /**
      * Retrieve the given key's hidden value and then forget it.
      *
-     * @param  string $key
-     * @param  mixed  $default
+     * @param string $key
+     * @param mixed  $default
      * @return mixed
      */
     public function pullHidden( $key, $default = null ) {
@@ -138,7 +138,7 @@ class Repository {
     /**
      * Retrieve only the values of the given keys.
      *
-     * @param  array<int, string> $keys
+     * @param array<int, string> $keys
      * @return array<string, mixed>
      */
     public function only( $keys ) {
@@ -148,7 +148,7 @@ class Repository {
     /**
      * Retrieve only the hidden values of the given keys.
      *
-     * @param  array<int, string> $keys
+     * @param array<int, string> $keys
      * @return array<string, mixed>
      */
     public function onlyHidden( $keys ) {
@@ -158,8 +158,8 @@ class Repository {
     /**
      * Add a context value.
      *
-     * @param  string|array<string, mixed> $key
-     * @param  mixed                       $value
+     * @param string|array<string, mixed> $key
+     * @param mixed                       $value
      * @return $this
      */
     public function add( $key, $value = null ) {
@@ -174,8 +174,8 @@ class Repository {
     /**
      * Add a hidden context value.
      *
-     * @param  string|array<string, mixed> $key
-     * @param  mixed                       $value
+     * @param string|array<string, mixed> $key
+     * @param mixed                       $value
      * @return $this
      */
     public function addHidden( $key, #[\SensitiveParameter]
@@ -191,7 +191,7 @@ class Repository {
     /**
      * Forget the given context key.
      *
-     * @param  string|array<int, string> $key
+     * @param string|array<int, string> $key
      * @return $this
      */
     public function forget( $key ) {
@@ -205,7 +205,7 @@ class Repository {
     /**
      * Forget the given hidden context key.
      *
-     * @param  string|array<int, string> $key
+     * @param string|array<int, string> $key
      * @return $this
      */
     public function forgetHidden( $key ) {
@@ -219,8 +219,8 @@ class Repository {
     /**
      * Add a context value if it does not exist yet.
      *
-     * @param  string $key
-     * @param  mixed  $value
+     * @param string $key
+     * @param mixed  $value
      * @return $this
      */
     public function addIf( $key, $value ) {
@@ -234,8 +234,8 @@ class Repository {
     /**
      * Add a hidden context value if it does not exist yet.
      *
-     * @param  string $key
-     * @param  mixed  $value
+     * @param string $key
+     * @param mixed  $value
      * @return $this
      */
     public function addHiddenIf( $key, #[\SensitiveParameter]
@@ -250,8 +250,8 @@ class Repository {
     /**
      * Push the given values onto the key's stack.
      *
-     * @param  string $key
-     * @param  mixed  ...$values
+     * @param string $key
+     * @param mixed  ...$values
      * @return $this
      * @throws \RuntimeException
      */
@@ -278,8 +278,8 @@ class Repository {
     /**
      * Push the given hidden values onto the key's stack.
      *
-     * @param  string $key
-     * @param  mixed  ...$values
+     * @param string $key
+     * @param mixed  ...$values
      * @return $this
      * @throws \RuntimeException
      */
@@ -306,7 +306,7 @@ class Repository {
     /**
      * Determine if a given key can be used as a stack.
      *
-     * @param  string $key
+     * @param string $key
      * @return bool
      */
     protected function isStackable( $key ) {
@@ -317,7 +317,7 @@ class Repository {
     /**
      * Determine if a given key can be used as a hidden stack.
      *
-     * @param  string $key
+     * @param string $key
      * @return bool
      */
     protected function isHiddenStackable( $key ) {
@@ -337,7 +337,7 @@ class Repository {
     /**
      * Execute the given callback when context is about to be dehydrated.
      *
-     * @param  callable $callback
+     * @param callable $callback
      * @return $this
      */
     public function dehydrating( $callback ) {
@@ -349,7 +349,7 @@ class Repository {
     /**
      * Execute the given callback when context has been hydrated.
      *
-     * @param  callable $callback
+     * @param callable $callback
      * @return $this
      */
     public function hydrated( $callback ) {
@@ -361,7 +361,7 @@ class Repository {
     /**
      * Handle unserialize exceptions using the given callback.
      *
-     * @param  callable|null $callback
+     * @param callable|null $callback
      * @return static
      */
     public function handleUnserializeExceptionsUsing( $callback ) {
@@ -406,7 +406,7 @@ class Repository {
     /**
      * Hydrate the context instance.
      *
-     * @param  ?array $context
+     * @param ?array $context
      * @return $this
      * @throws \RuntimeException
      * @internal
