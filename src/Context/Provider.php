@@ -4,7 +4,7 @@ namespace Hybrid\Log\Context;
 
 use Hybrid\Core\ServiceProvider;
 
-class ContextServiceProvider extends ServiceProvider {
+class Provider extends ServiceProvider {
 
     /**
      * Register the service provider.

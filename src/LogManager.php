@@ -142,6 +142,21 @@ class LogManager implements LoggerInterface {
                             return $record;
                         }
 
+                        // Handling Monolog v2 compatibility until the framework supports PHP 8.1+,
+                        // as Monolog v3 requires a minimum of PHP 8.1.
+                        // For Monolog v2, $record is an array, so we merge the existing 'extra' data
+                        // with the new context data. This will ensure compatibility with both versions.
+                        if ( ! ( $record instanceof \Monolog\LogRecord ) ) {
+                            $extraData = $this->app[ ContextRepository::class ]->all();
+
+                            $existingExtra   = isset( $record['extra'] ) && is_array( $record['extra'] )
+                                ? $record['extra']
+                                : [];
+                            $record['extra'] = array_merge( $existingExtra, $extraData );
+
+                            return $record;
+                        }
+
                         // Note: Downgraded it to ensure PHP 8.0 compatibility,
                         // as it relies on the array unpacking feature with the spread operator (...),
                         // which was introduced in PHP 7.4 for arrays but could not be used in such a context until PHP >=8.1.
