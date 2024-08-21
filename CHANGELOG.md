@@ -2,6 +2,12 @@
 
 You can see the changes made via the [commit log](https://github.com/themehybrid/hybrid-log/commits/master) for the latest release.
 
+## [1.0.0-beta.4] - 2024-08-21
+
+### Changed
+
+- Refactor: Ensure LogManager compatibility with Monolog v2 and adjust code for LogRecord array support.
+
 ## [1.0.0-beta.3] - 2024-08-02
 
 ### Changed
@@ -13,6 +19,7 @@ You can see the changes made via the [commit log](https://github.com/themehybrid
 - Lint composer.json
 - Lint php
 - Update copyright date
+- Added: Context support to the log package, enabling better contextual logging within the applications.
 
 ## [1.0.0-beta.2] - 2024-06-24
 

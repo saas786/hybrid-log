@@ -2,6 +2,8 @@
 
 namespace Hybrid\Log\Facades;
 
+use Hybrid\Core\Facades\Facade;
+
 /**
  * @see \Hybrid\Log\Context\Repository
  *

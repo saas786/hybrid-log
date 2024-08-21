@@ -14,6 +14,7 @@ You need to register the service provider during your bootstrapping process:
 
 ```php
 $slug->provider( \Hybrid\Log\Provider::class );
+$slug->provider( \Hybrid\Log\Context\Provider::class );
 ```
 
 Sample `/config/logging.php`
@@ -112,6 +113,10 @@ Sample usage
 
 ```php
 use Hybrid\Log\Facades\Log;
+use Hybrid\Log\Facades\Context;
+
+Context::add('some_key', 'value');
+Context::add('some_other_key', 'value');
 
 Log::emergency($message);
 Log::alert($message);
