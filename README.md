@@ -4,7 +4,7 @@ The Hybrid Logger package is a powerful and flexible tool for managing and recor
 
 ## Requirements
 
-* PHP 8.0+.
+* PHP 8.2+.
 * [Composer](https://getcomposer.org/) for managing PHP dependencies.
 
 
@@ -13,8 +13,8 @@ The Hybrid Logger package is a powerful and flexible tool for managing and recor
 You need to register the service provider during your bootstrapping process:
 
 ```php
-$slug->provider( \Hybrid\Log\Provider::class );
-$slug->provider( \Hybrid\Log\Context\Provider::class );
+$slug->provider( \Hybrid\Log\LogServiceProvider::class );
+$slug->provider( \Hybrid\Log\Context\ContextServiceProvider::class );
 ```
 
 Sample `/config/logging.php`
@@ -74,21 +74,17 @@ return [
     'channels'     => [
         'stack'      => [
             'driver'            => 'stack',
-            'channels'          => [
-					'single',
-					'daily',
-					// 'sentry',
-				],
+            'channels'          => explode(',', (string) env('LOG_STACK', 'single')),
             'ignore_exceptions' => false,
         ],
         'single'     => [
             'driver' => 'single',
-            'path'   => storage_path( 'logs/hybrid.log' ),
+            'path'   => storage_path( 'logs/hybrid-core.log' ),
             'level'  => env( 'LOG_LEVEL', 'debug' ),
         ],
         'daily'      => [
             'driver' => 'daily',
-            'path'   => storage_path( 'logs/hybrid.log' ),
+            'path'   => storage_path( 'logs/hybrid-core.log' ),
             'level'  => env( 'LOG_LEVEL', 'debug' ),
             'days'   => 14,
         ],
@@ -97,7 +93,7 @@ return [
             'handler' => NullHandler::class,
         ],
         'emergency'  => [
-            'path' => storage_path( 'logs/hybrid.log' ),
+            'path' => storage_path( 'logs/hybrid-core.log' ),
         ],
         'sentry'     => [
             'driver' => 'sentry',
@@ -135,13 +131,14 @@ Log::stack(['single', 'daily'])->info('Something happened!');
 
 This project is licensed under the [GNU GPL](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html), version 2 or later.
 
-2008&thinsp;&ndash;&thinsp;2024 &copy; [Theme Hybrid](https://themehybrid.com).
+2008&thinsp;&ndash;&thinsp;2026 &copy; [Theme Hybrid](https://themehybrid.com).
 
-## Other Licenses
+## Third-Party Licenses
 
-Hybrid Log utilizes code from Illuminate.
+Hybrid Log utilizes code from the illuminate/log package.
 
-<https://github.com/illuminate/log>
+Repository: <https://github.com/illuminate/log>
 
-License: MIT - <https://opensource.org/licenses/MIT>
+License: MIT License - <https://opensource.org/licenses/MIT>
+
 Copyright (c) Taylor Otwell
