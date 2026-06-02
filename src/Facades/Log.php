@@ -13,6 +13,7 @@ use Hybrid\Core\Facades\Facade;
  * @method static \Psr\Log\LoggerInterface driver(string|null $driver = null)
  * @method static \Hybrid\Log\LogManager shareContext(array $context)
  * @method static array sharedContext()
+ * @method static \Hybrid\Log\Logger withoutContext()
  * @method static \Hybrid\Log\LogManager flushSharedContext()
  * @method static string|null getDefaultDriver()
  * @method static void setDefaultDriver(string $name)
@@ -31,7 +32,6 @@ use Hybrid\Core\Facades\Facade;
  * @method static \Hybrid\Log\LogManager setApplication(\Hybrid\Contracts\Core\Application $app)
  * @method static void write(string $level, \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message, array $context = [])
  * @method static \Hybrid\Log\Logger withContext(array $context = [])
- * @method static \Hybrid\Log\Logger withoutContext()
  * @method static void listen(\Closure $callback)
  * @method static \Psr\Log\LoggerInterface getLogger()
  * @method static \Hybrid\Contracts\Events\Dispatcher getEventDispatcher()
@@ -40,7 +40,6 @@ use Hybrid\Core\Facades\Facade;
  * @method static \Hybrid\Log\Logger|mixed unless(\Closure|mixed|null $value = null, callable|null $callback = null, callable|null $default = null)
  */
 class Log extends Facade {
-
     /**
      * Get the registered name of the component.
      *
@@ -49,5 +48,4 @@ class Log extends Facade {
     protected static function getFacadeAccessor() {
         return 'log';
     }
-
 }

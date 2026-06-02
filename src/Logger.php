@@ -9,6 +9,7 @@ use Hybrid\Contracts\Jsonable;
 use Hybrid\Log\Events\MessageLogged;
 use Hybrid\Tools\Traits\Conditionable;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class Logger implements LoggerInterface {
 
@@ -38,7 +39,8 @@ class Logger implements LoggerInterface {
     /**
      * Create a new log writer instance.
      *
-     * @return void
+     * @param \Psr\Log\LoggerInterface                 $logger
+     * @param \Hybrid\Contracts\Events\Dispatcher|null $dispatcher
      */
     public function __construct( LoggerInterface $logger, ?Dispatcher $dispatcher = null ) {
         $this->logger     = $logger;
@@ -155,6 +157,10 @@ class Logger implements LoggerInterface {
      * @param array                                                                                        $context
      */
     protected function writeLog( $level, $message, $context ): void {
+        if ( method_exists( $this->logger, 'isHandling' ) && ! $this->logger->isHandling( $level ) ) {
+            return;
+        }
+
         $this->logger->{$level}(
             $message = $this->formatMessage( $message ),
             $context = array_merge( $this->context, $context )
@@ -167,6 +173,7 @@ class Logger implements LoggerInterface {
      * Add context to all future logs.
      *
      * @param array $context
+     *
      * @return $this
      */
     public function withContext( array $context = [] ) {
@@ -176,12 +183,14 @@ class Logger implements LoggerInterface {
     }
 
     /**
-     * Flush the existing context array.
+     * Flush the log context on all currently resolved channels.
+     *
+     * @param string[]|null $keys
      *
      * @return $this
      */
-    public function withoutContext() {
-        $this->context = [];
+    public function withoutContext( ?array $keys = null ) {
+        $this->context = is_array( $keys ) ? array_diff_key( $this->context, array_flip( $keys ) ) : [];
 
         return $this;
     }
@@ -189,12 +198,15 @@ class Logger implements LoggerInterface {
     /**
      * Register a new callback handler for when a log event is triggered.
      *
+     * @param \Closure $callback
+     *
      * @return void
+     *
      * @throws \RuntimeException
      */
     public function listen( Closure $callback ) {
         if ( ! isset( $this->dispatcher ) ) {
-            throw new \RuntimeException( 'Events dispatcher has not been set.' );
+            throw new RuntimeException( 'Events dispatcher has not been set.' );
         }
 
         $this->dispatcher->listen( MessageLogged::class, $callback );
@@ -206,9 +218,16 @@ class Logger implements LoggerInterface {
      * @param string $level
      * @param string $message
      * @param array  $context
+     *
      * @return void
      */
     protected function fireLogEvent( $level, $message, array $context = [] ) {
+        // Avoid dispatching the event multiple times if our logger instance is the LogManager...
+        if ( $this->logger instanceof LogManager &&
+            $this->logger->getEventDispatcher() !== null ) {
+            return;
+        }
+
         // If the event dispatcher is set, we will pass along the parameters to the
         // log listeners. These are useful for building profilers or other tools
         // that aggregate all of the log messages for a given "request" cycle.
@@ -219,22 +238,16 @@ class Logger implements LoggerInterface {
      * Format the parameters for the logger.
      *
      * @param \Hybrid\Contracts\Arrayable|\Hybrid\Contracts\Jsonable|\Hybrid\Tools\Stringable|array|string $message
+     *
      * @return string
      */
     protected function formatMessage( $message ) {
-        if ( is_array( $message ) ) {
-            return var_export( $message, true );
-        }
-
-        if ( $message instanceof Jsonable ) {
-            return $message->toJson();
-        }
-
-        if ( $message instanceof Arrayable ) {
-            return var_export( $message->toArray(), true );
-        }
-
-        return (string) $message;
+        return match ( true ) {
+            is_array( $message ) => var_export( $message, true ),
+            $message instanceof Jsonable => $message->toJson(),
+            $message instanceof Arrayable => var_export( $message->toArray(), true ),
+            default => (string) $message,
+        };
     }
 
     /**
@@ -258,6 +271,8 @@ class Logger implements LoggerInterface {
     /**
      * Set the event dispatcher instance.
      *
+     * @param \Hybrid\Contracts\Events\Dispatcher $dispatcher
+     *
      * @return void
      */
     public function setEventDispatcher( Dispatcher $dispatcher ) {
@@ -269,10 +284,10 @@ class Logger implements LoggerInterface {
      *
      * @param string $method
      * @param array  $parameters
+     *
      * @return mixed
      */
     public function __call( $method, $parameters ) {
         return $this->logger->{$method}( ...$parameters );
     }
-
 }

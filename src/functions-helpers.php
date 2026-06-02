@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Helper functions.
  */
@@ -6,18 +7,20 @@
 namespace Hybrid\Log;
 
 use Hybrid\Log\Context\Repository as ContextRepository;
+use Psr\Log\LoggerInterface;
 use function Hybrid\app;
 
-if ( ! function_exists( __NAMESPACE__ . '\\info' ) ) {
+if ( ! function_exists( __NAMESPACE__ . '\\log' ) ) {
     /**
-     * Write some information to the log.
+     * Log a debug message to the logs.
      *
-     * @param string $message
-     * @param array  $context
-     * @return void
+     * @param string|null $message
+     * @param array       $context
+     *
+     * @return ($message is null ? \Psr\Log\LoggerInterface: null)
      */
-    function info( $message, $context = [] ) {
-        app( 'log' )->info( $message, $context );
+    function log( $message = null, array $context = [] ): ?LoggerInterface {
+        return logger( $message, $context );
     }
 }
 
@@ -26,10 +29,10 @@ if ( ! function_exists( __NAMESPACE__ . '\\logger' ) ) {
      * Log a debug message to the logs.
      *
      * @param string|null $message
-     * @param array       $context
-     * @return ($message is null ? \Hybrid\Log\LogManager : null)
+     *
+     * @return ($message is null ? \Psr\Log\LoggerInterface : null)
      */
-    function logger( $message = null, array $context = [] ) {
+    function logger( $message = null, array $context = [] ): ?LoggerInterface {
         if ( is_null( $message ) ) {
             return app( 'log' );
         }
@@ -43,6 +46,7 @@ if ( ! function_exists( __NAMESPACE__ . '\\logs' ) ) {
      * Get a log driver instance.
      *
      * @param string|null $driver
+     *
      * @return ($driver is null ? \Hybrid\Log\LogManager : \Psr\Log\LoggerInterface)
      */
     function logs( $driver = null ) {
@@ -56,6 +60,7 @@ if ( ! function_exists( __NAMESPACE__ . '\\context' ) ) {
      *
      * @param array|string|null $key
      * @param mixed             $default
+     *
      * @return ($key is string ? mixed : \Hybrid\Log\Context\Repository)
      */
     function context( $key = null, $default = null ) {
@@ -66,5 +71,30 @@ if ( ! function_exists( __NAMESPACE__ . '\\context' ) ) {
             is_array( $key ) => $context->add( $key ),
             default => $context->get( $key, $default ),
         };
+    }
+}
+
+if ( ! function_exists( __NAMESPACE__ . '\\logs' ) ) {
+    /**
+     * Get a log driver instance.
+     *
+     * @param string|null $driver
+     *
+     * @return ($driver is null ? \Hybrid\Log\LogManager : \Psr\Log\LoggerInterface)
+     */
+    function logs( $driver = null ): LoggerInterface|LogManager {
+        return $driver ? app( 'log' )->driver( $driver ) : app( 'log' );
+    }
+}
+
+if ( ! function_exists( __NAMESPACE__ . '\\info' ) ) {
+    /**
+     * Write some information to the log.
+     *
+     * @param string $message
+     * @param array  $context
+     */
+    function info( $message, $context = [] ): void {
+        app( 'log' )->info( $message, $context );
     }
 }

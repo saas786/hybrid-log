@@ -3,7 +3,6 @@
 namespace Hybrid\Log\Context\Events;
 
 class ContextDehydrating {
-
     /**
      * The context instance.
      *
@@ -19,5 +18,4 @@ class ContextDehydrating {
     public function __construct( $context ) {
         $this->context = $context;
     }
-
 }
