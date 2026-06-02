@@ -8,7 +8,9 @@ use Hybrid\Core\Facades\Facade;
  * @see \Hybrid\Log\Context\Repository
  *
  * @method static bool has(string $key)
+ * @method static bool missing(string $key)
  * @method static bool hasHidden(string $key)
+ * @method static bool missingHidden(string $key)
  * @method static array all()
  * @method static array allHidden()
  * @method static mixed get(string $key, mixed $default = null)
@@ -17,14 +19,25 @@ use Hybrid\Core\Facades\Facade;
  * @method static mixed pullHidden(string $key, mixed $default = null)
  * @method static array only(array $keys)
  * @method static array onlyHidden(array $keys)
+ * @method static array except(array $keys)
+ * @method static array exceptHidden(array $keys)
  * @method static \Hybrid\Log\Context\Repository add(string|array $key, mixed $value = null)
  * @method static \Hybrid\Log\Context\Repository addHidden(string|array $key, mixed $value = null)
+ * @method static mixed remember(string $key, mixed $value)
+ * @method static mixed rememberHidden(string $key, mixed $value)
  * @method static \Hybrid\Log\Context\Repository forget(string|array $key)
  * @method static \Hybrid\Log\Context\Repository forgetHidden(string|array $key)
  * @method static \Hybrid\Log\Context\Repository addIf(string $key, mixed $value)
  * @method static \Hybrid\Log\Context\Repository addHiddenIf(string $key, mixed $value)
  * @method static \Hybrid\Log\Context\Repository push(string $key, mixed ...$values)
+ * @method static mixed pop(string $key)
  * @method static \Hybrid\Log\Context\Repository pushHidden(string $key, mixed ...$values)
+ * @method static mixed popHidden(string $key)
+ * @method static \Hybrid\Log\Context\Repository increment(string $key, int $amount = 1)
+ * @method static \Hybrid\Log\Context\Repository decrement(string $key, int $amount = 1)
+ * @method static bool stackContains(string $key, mixed $value, bool $strict = false)
+ * @method static bool hiddenStackContains(string $key, mixed $value, bool $strict = false)
+ * @method static mixed scope(callable $callback, array $data = [], array $hidden = [])
  * @method static bool isEmpty()
  * @method static \Hybrid\Log\Context\Repository dehydrating(callable $callback)
  * @method static \Hybrid\Log\Context\Repository hydrated(callable $callback)
@@ -38,7 +51,6 @@ use Hybrid\Core\Facades\Facade;
  * @method static void flushMacros()
  */
 class Context extends Facade {
-
     /**
      * Get the registered name of the component.
      *
@@ -47,5 +59,4 @@ class Context extends Facade {
     protected static function getFacadeAccessor() {
         return \Hybrid\Log\Context\Repository::class;
     }
-
 }

@@ -3,8 +3,10 @@
 namespace Hybrid\Log;
 
 use Closure;
-use Hybrid\Log\Context\Repository as ContextRepository;
+use Hybrid\Contracts\Log\ContextLogProcessor;
+use Hybrid\Tools\Collection;
 use Hybrid\Tools\Str;
+use InvalidArgumentException;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\FingersCrossedHandler;
@@ -19,7 +21,7 @@ use Monolog\Logger as Monolog;
 use Monolog\Processor\ProcessorInterface;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\LoggerInterface;
-use function Hybrid\Tools\collect;
+use Throwable;
 use function Hybrid\Tools\tap;
 use function Hybrid\Tools\with;
 
@@ -69,7 +71,6 @@ class LogManager implements LoggerInterface {
      * Create a new Log manager instance.
      *
      * @param \Hybrid\Contracts\Core\Application $app
-     * @return void
      */
     public function __construct( $app ) {
         $this->app = $app;
@@ -79,6 +80,7 @@ class LogManager implements LoggerInterface {
      * Build an on-demand log channel.
      *
      * @param array $config
+     *
      * @return \Psr\Log\LoggerInterface
      */
     public function build( array $config ) {
@@ -92,6 +94,7 @@ class LogManager implements LoggerInterface {
      *
      * @param array       $channels
      * @param string|null $channel
+     *
      * @return \Psr\Log\LoggerInterface
      */
     public function stack( array $channels, $channel = null ) {
@@ -105,6 +108,7 @@ class LogManager implements LoggerInterface {
      * Get a log channel instance.
      *
      * @param string|null $channel
+     *
      * @return \Psr\Log\LoggerInterface
      */
     public function channel( $channel = null ) {
@@ -115,6 +119,7 @@ class LogManager implements LoggerInterface {
      * Get a log driver instance.
      *
      * @param string|null $driver
+     *
      * @return \Psr\Log\LoggerInterface
      */
     public function driver( $driver = null ) {
@@ -126,6 +131,7 @@ class LogManager implements LoggerInterface {
      *
      * @param string     $name
      * @param array|null $config
+     *
      * @return \Psr\Log\LoggerInterface
      */
     protected function get( $name, ?array $config = null ) {
@@ -137,44 +143,13 @@ class LogManager implements LoggerInterface {
                 )->withContext( $this->sharedContext );
 
                 if ( method_exists( $loggerWithContext->getLogger(), 'pushProcessor' ) ) {
-                    $loggerWithContext->pushProcessor( function ( $record ) {
-                        if ( ! $this->app->bound( ContextRepository::class ) ) {
-                            return $record;
-                        }
-
-                        // Handling Monolog v2 compatibility until the framework supports PHP 8.1+,
-                        // as Monolog v3 requires a minimum of PHP 8.1.
-                        // For Monolog v2, $record is an array, so we merge the existing 'extra' data
-                        // with the new context data. This will ensure compatibility with both versions.
-                        if ( ! ( $record instanceof \Monolog\LogRecord ) ) {
-                            $extraData = $this->app[ ContextRepository::class ]->all();
-
-                            $existingExtra   = isset( $record['extra'] ) && is_array( $record['extra'] )
-                                ? $record['extra']
-                                : [];
-                            $record['extra'] = array_merge( $existingExtra, $extraData );
-
-                            return $record;
-                        }
-
-                        // Note: Downgraded it to ensure PHP 8.0 compatibility,
-                        // as it relies on the array unpacking feature with the spread operator (...),
-                        // which was introduced in PHP 7.4 for arrays but could not be used in such a context until PHP >=8.1.
-                        // @see https://wiki.php.net/rfc/array_unpacking_string_keys
-                        /*
-                        return $record->with( extra: [
-                            ...$record->extra,
-                            ...$this->app[ ContextRepository::class ]->all(),
-                        ] );
-                         */
-                        return $record->with( extra: array_merge( is_array( $record->extra ) ? $record->extra : iterator_to_array( $record->extra ), is_array( $this->app[ ContextRepository::class ]->all() ) ? $this->app[ ContextRepository::class ]->all() : iterator_to_array( $this->app[ ContextRepository::class ]->all() ) ) );
-                    } );
+                    $loggerWithContext->pushProcessor( $this->app->make( ContextLogProcessor::class ) );
                 }
 
                 return $this->channels[ $name ] = $loggerWithContext;
             } );
-        } catch ( \Throwable $e ) {
-            return tap( $this->createEmergencyLogger(), static function ( $logger ) use ( $e ) {
+        } catch ( Throwable $e ) {
+            return tap( $this->createEmergencyLogger(), function ( $logger ) use ( $e ) {
                 $logger->emergency( 'Unable to create configured logger. Using emergency logger.', [
                     'exception' => $e,
                 ] );
@@ -185,14 +160,16 @@ class LogManager implements LoggerInterface {
     /**
      * Apply the configured taps for the logger.
      *
-     * @param string $name
+     * @param string             $name
+     * @param \Hybrid\Log\Logger $logger
+     *
      * @return \Hybrid\Log\Logger
      */
     protected function tap( $name, Logger $logger ) {
         foreach ( $this->configurationFor( $name )['tap'] ?? [] as $tap ) {
             [$class, $arguments] = $this->parseTap( $tap );
 
-            $this->app->make( $class )( $logger, ...explode( ',', $arguments ) );
+            $this->app->make( $class )->__invoke( $logger, ...explode( ',', $arguments ) );
         }
 
         return $logger;
@@ -202,6 +179,7 @@ class LogManager implements LoggerInterface {
      * Parse the given tap class string into a class name and arguments string.
      *
      * @param string $tap
+     *
      * @return array
      */
     protected function parseTap( $tap ) {
@@ -217,12 +195,12 @@ class LogManager implements LoggerInterface {
         $config = $this->configurationFor( 'emergency' );
 
         $handler = new StreamHandler(
-            $config['path'] ?? $this->app->storagePath() . '/logs/hybrid.log',
+            $config['path'] ?? $this->app->storagePath() . '/logs/hybrid-core.log',
             $this->level( [ 'level' => 'debug' ] )
         );
 
         return new Logger(
-            new Monolog( 'hybrid', $this->prepareHandlers( [ $handler ] ) ),
+            new Monolog( 'hybrid_core', $this->prepareHandlers( [ $handler ] ) ),
             $this->app['events']
         );
     }
@@ -232,14 +210,16 @@ class LogManager implements LoggerInterface {
      *
      * @param string     $name
      * @param array|null $config
+     *
      * @return \Psr\Log\LoggerInterface
+     *
      * @throws \InvalidArgumentException
      */
     protected function resolve( $name, ?array $config = null ) {
         $config ??= $this->configurationFor( $name );
 
         if ( is_null( $config ) ) {
-            throw new \InvalidArgumentException( "Log [{$name}] is not defined." );
+            throw new InvalidArgumentException( "Log [{$name}] is not defined." );
         }
 
         if ( isset( $this->customCreators[ $config['driver'] ] ) ) {
@@ -252,13 +232,14 @@ class LogManager implements LoggerInterface {
             return $this->{$driverMethod}( $config );
         }
 
-        throw new \InvalidArgumentException( "Driver [{$config['driver']}] is not supported." );
+        throw new InvalidArgumentException( "Driver [{$config['driver']}] is not supported." );
     }
 
     /**
      * Call a custom driver creator.
      *
      * @param array $config
+     *
      * @return mixed
      */
     protected function callCustomCreator( array $config ) {
@@ -269,6 +250,7 @@ class LogManager implements LoggerInterface {
      * Create a custom log driver instance.
      *
      * @param array $config
+     *
      * @return \Psr\Log\LoggerInterface
      */
     protected function createCustomDriver( array $config ) {
@@ -281,6 +263,7 @@ class LogManager implements LoggerInterface {
      * Create an aggregate log driver instance.
      *
      * @param array $config
+     *
      * @return \Psr\Log\LoggerInterface
      */
     protected function createStackDriver( array $config ) {
@@ -288,13 +271,21 @@ class LogManager implements LoggerInterface {
             $config['channels'] = explode( ',', $config['channels'] );
         }
 
-        $handlers = collect( $config['channels'] )->flatMap( fn( $channel ) => $channel instanceof LoggerInterface
-            ? $channel->getHandlers()
-            : $this->channel( $channel )->getHandlers() )->all();
+        $handlers = ( new Collection( $config['channels'] ) )
+            ->flatMap( function ( $channel ) {
+                return $channel instanceof LoggerInterface
+                    ? $channel->getHandlers()
+                    : $this->channel( $channel )->getHandlers();
+            } )
+            ->all();
 
-        $processors = collect( $config['channels'] )->flatMap( fn( $channel ) => $channel instanceof LoggerInterface
-            ? $channel->getProcessors()
-            : $this->channel( $channel )->getProcessors() )->all();
+        $processors = ( new Collection( $config['channels'] ) )
+            ->flatMap( function ( $channel ) {
+                return $channel instanceof LoggerInterface
+                    ? $channel->getProcessors()
+                    : $this->channel( $channel )->getProcessors();
+            } )
+            ->all();
 
         if ( $config['ignore_exceptions'] ?? false ) {
             $handlers = [ new WhatFailureGroupHandler( $handlers ) ];
@@ -307,6 +298,7 @@ class LogManager implements LoggerInterface {
      * Create an instance of the single file log driver.
      *
      * @param array $config
+     *
      * @return \Psr\Log\LoggerInterface
      */
     protected function createSingleDriver( array $config ) {
@@ -317,13 +309,14 @@ class LogManager implements LoggerInterface {
                     $config['bubble'] ?? true, $config['permission'] ?? null, $config['locking'] ?? false
                 ), $config
             ),
-        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor() ] : [] );
+        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor ] : [] );
     }
 
     /**
      * Create an instance of the daily file log driver.
      *
      * @param array $config
+     *
      * @return \Psr\Log\LoggerInterface
      */
     protected function createDailyDriver( array $config ) {
@@ -332,13 +325,14 @@ class LogManager implements LoggerInterface {
                 $config['path'], $config['days'] ?? 7, $this->level( $config ),
                 $config['bubble'] ?? true, $config['permission'] ?? null, $config['locking'] ?? false
             ), $config ),
-        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor() ] : [] );
+        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor ] : [] );
     }
 
     /**
      * Create an instance of the Slack log driver.
      *
      * @param array $config
+     *
      * @return \Psr\Log\LoggerInterface
      */
     protected function createSlackDriver( array $config ) {
@@ -355,13 +349,14 @@ class LogManager implements LoggerInterface {
                 $config['bubble'] ?? true,
                 $config['exclude_fields'] ?? []
             ), $config ),
-        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor() ] : [] );
+        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor ] : [] );
     }
 
     /**
      * Create an instance of the syslog log driver.
      *
      * @param array $config
+     *
      * @return \Psr\Log\LoggerInterface
      */
     protected function createSyslogDriver( array $config ) {
@@ -370,13 +365,14 @@ class LogManager implements LoggerInterface {
                 Str::snake( $this->app['config']['app.name'], '-' ),
                 $config['facility'] ?? LOG_USER, $this->level( $config )
             ), $config ),
-        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor() ] : [] );
+        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor ] : [] );
     }
 
     /**
      * Create an instance of the "error log" log driver.
      *
      * @param array $config
+     *
      * @return \Psr\Log\LoggerInterface
      */
     protected function createErrorlogDriver( array $config ) {
@@ -384,27 +380,31 @@ class LogManager implements LoggerInterface {
             $this->prepareHandler( new ErrorLogHandler(
                 $config['type'] ?? ErrorLogHandler::OPERATING_SYSTEM, $this->level( $config )
             ) ),
-        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor() ] : [] );
+        ], $config['replace_placeholders'] ?? false ? [ new PsrLogMessageProcessor ] : [] );
     }
 
     /**
      * Create an instance of any handler available in Monolog.
      *
      * @param array $config
+     *
      * @return \Psr\Log\LoggerInterface
+     *
      * @throws \InvalidArgumentException
      * @throws \Hybrid\Contracts\Container\BindingResolutionException
      */
     protected function createMonologDriver( array $config ) {
         if ( ! is_a( $config['handler'], HandlerInterface::class, true ) ) {
-            throw new \InvalidArgumentException( $config['handler'] . ' must be an instance of ' . HandlerInterface::class );
+            throw new InvalidArgumentException(
+                $config['handler'] . ' must be an instance of ' . HandlerInterface::class
+            );
         }
 
-        collect( $config['processors'] ?? [] )->each( static function ( $processor ) {
+        ( new Collection( $config['processors'] ?? [] ) )->each( function ( $processor ) {
             $processor = $processor['processor'] ?? $processor;
 
             if ( ! is_a( $processor, ProcessorInterface::class, true ) ) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     $processor . ' must be an instance of ' . ProcessorInterface::class
                 );
             }
@@ -420,7 +420,7 @@ class LogManager implements LoggerInterface {
             $this->app->make( $config['handler'], $with ), $config
         );
 
-        $processors = collect( $config['processors'] ?? [] )
+        $processors = ( new Collection( $config['processors'] ?? [] ) )
             ->map( fn( $processor ) => $this->app->make( $processor['processor'] ?? $processor, $processor['with'] ?? [] ) )
             ->toArray();
 
@@ -435,6 +435,7 @@ class LogManager implements LoggerInterface {
      * Prepare the handlers for usage by Monolog.
      *
      * @param array $handlers
+     *
      * @return array
      */
     protected function prepareHandlers( array $handlers ) {
@@ -448,7 +449,9 @@ class LogManager implements LoggerInterface {
     /**
      * Prepare the handler for usage by Monolog.
      *
-     * @param array $config
+     * @param \Monolog\Handler\HandlerInterface $handler
+     * @param array                             $config
+     *
      * @return \Monolog\Handler\HandlerInterface
      */
     protected function prepareHandler( HandlerInterface $handler, array $config = [] ) {
@@ -462,14 +465,7 @@ class LogManager implements LoggerInterface {
             );
         }
 
-        // Backwards compatibility.
-        // @see https://github.com/Seldaek/monolog/issues/1824
-        // @see https://github.com/Haran/BMDMSoundex/issues/7
-        // @see https://github.com/Seldaek/monolog/issues/1746
-        // @see https://github.com/nunomaduro/larastan/issues/769
-        // @see https://github.com/Seldaek/monolog/issues/1386
-        if ( Monolog::API !== 1 && ( Monolog::API !== 2 || ! $handler instanceof FormattableHandlerInterface ) ) {
-            // if (! $handler instanceof FormattableHandlerInterface) {
+        if ( ! $handler instanceof FormattableHandlerInterface ) {
             return $handler;
         }
 
@@ -495,6 +491,7 @@ class LogManager implements LoggerInterface {
      * Share context across channels and stacks.
      *
      * @param array $context
+     *
      * @return $this
      */
     public function shareContext( array $context ) {
@@ -519,12 +516,14 @@ class LogManager implements LoggerInterface {
     /**
      * Flush the log context on all currently resolved channels.
      *
+     * @param string[]|null $keys
+     *
      * @return $this
      */
-    public function withoutContext() {
+    public function withoutContext( ?array $keys = null ) {
         foreach ( $this->channels as $channel ) {
             if ( method_exists( $channel, 'withoutContext' ) ) {
-                $channel->withoutContext();
+                $channel->withoutContext( $keys );
             }
         }
 
@@ -555,6 +554,7 @@ class LogManager implements LoggerInterface {
      * Get the log connection configuration.
      *
      * @param string $name
+     *
      * @return array
      */
     protected function configurationFor( $name ) {
@@ -574,6 +574,7 @@ class LogManager implements LoggerInterface {
      * Set the default log driver name.
      *
      * @param string $name
+     *
      * @return void
      */
     public function setDefaultDriver( $name ) {
@@ -583,7 +584,11 @@ class LogManager implements LoggerInterface {
     /**
      * Register a custom driver creator Closure.
      *
-     * @param string $driver
+     * @param string   $driver
+     * @param \Closure $callback
+     *
+     * @param-closure-this  $this  $callback
+     *
      * @return $this
      */
     public function extend( $driver, Closure $callback ) {
@@ -596,6 +601,7 @@ class LogManager implements LoggerInterface {
      * Unset the given channel instance.
      *
      * @param string|null $driver
+     *
      * @return void
      */
     public function forgetChannel( $driver = null ) {
@@ -610,6 +616,7 @@ class LogManager implements LoggerInterface {
      * Parse the driver name.
      *
      * @param string|null $driver
+     *
      * @return string|null
      */
     protected function parseDriver( $driver ) {
@@ -619,7 +626,11 @@ class LogManager implements LoggerInterface {
             $driver ??= 'null';
         }
 
-        return $driver;
+        if ( null === $driver ) {
+            return null;
+        }
+
+        return trim( $driver );
     }
 
     /**
@@ -737,6 +748,7 @@ class LogManager implements LoggerInterface {
      * Set the application instance used by the manager.
      *
      * @param \Hybrid\Contracts\Core\Application $app
+     *
      * @return $this
      */
     public function setApplication( $app ) {
@@ -750,10 +762,10 @@ class LogManager implements LoggerInterface {
      *
      * @param string $method
      * @param array  $parameters
+     *
      * @return mixed
      */
     public function __call( $method, $parameters ) {
         return $this->driver()->$method( ...$parameters );
     }
-
 }

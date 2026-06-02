@@ -2,11 +2,25 @@
 
 namespace Hybrid\Log;
 
-use Hybrid\Log\Traits\Levels;
+use InvalidArgumentException;
+use Monolog\Level;
 
 trait ParsesLogConfiguration {
-
-    use Levels;
+    /**
+     * The Log levels.
+     *
+     * @var array
+     */
+    protected $levels = [
+        'debug'     => Level::Debug,
+        'info'      => Level::Info,
+        'notice'    => Level::Notice,
+        'warning'   => Level::Warning,
+        'error'     => Level::Error,
+        'critical'  => Level::Critical,
+        'alert'     => Level::Alert,
+        'emergency' => Level::Emergency,
+    ];
 
     /**
      * Get fallback log channel name.
@@ -19,7 +33,9 @@ trait ParsesLogConfiguration {
      * Parse the string level into a Monolog constant.
      *
      * @param array $config
+     *
      * @return int
+     *
      * @throws \InvalidArgumentException
      */
     protected function level( array $config ) {
@@ -29,14 +45,16 @@ trait ParsesLogConfiguration {
             return $this->levels[ $level ];
         }
 
-        throw new \InvalidArgumentException( 'Invalid log level.' );
+        throw new InvalidArgumentException( 'Invalid log level.' );
     }
 
     /**
      * Parse the action level from the given configuration.
      *
      * @param array $config
+     *
      * @return int
+     *
      * @throws \InvalidArgumentException
      */
     protected function actionLevel( array $config ) {
@@ -46,17 +64,17 @@ trait ParsesLogConfiguration {
             return $this->levels[ $level ];
         }
 
-        throw new \InvalidArgumentException( 'Invalid log action level.' );
+        throw new InvalidArgumentException( 'Invalid log action level.' );
     }
 
     /**
      * Extract the log channel from the given configuration.
      *
      * @param array $config
+     *
      * @return string
      */
     protected function parseChannel( array $config ) {
         return $config['name'] ?? $this->getFallbackChannelName();
     }
-
 }
