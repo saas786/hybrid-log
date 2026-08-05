@@ -49,7 +49,7 @@ if ( ! function_exists( __NAMESPACE__ . '\\logs' ) ) {
      *
      * @return ($driver is null ? \Hybrid\Log\LogManager : \Psr\Log\LoggerInterface)
      */
-    function logs( $driver = null ) {
+    function logs( $driver = null ): LoggerInterface|LogManager {
         return $driver ? app( 'log' )->driver( $driver ) : app( 'log' );
     }
 }
@@ -71,19 +71,6 @@ if ( ! function_exists( __NAMESPACE__ . '\\context' ) ) {
             is_array( $key ) => $context->add( $key ),
             default => $context->get( $key, $default ),
         };
-    }
-}
-
-if ( ! function_exists( __NAMESPACE__ . '\\logs' ) ) {
-    /**
-     * Get a log driver instance.
-     *
-     * @param string|null $driver
-     *
-     * @return ($driver is null ? \Hybrid\Log\LogManager : \Psr\Log\LoggerInterface)
-     */
-    function logs( $driver = null ): LoggerInterface|LogManager {
-        return $driver ? app( 'log' )->driver( $driver ) : app( 'log' );
     }
 }
 
