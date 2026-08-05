@@ -12,6 +12,8 @@ use Hybrid\Tools\Traits\Conditionable;
 use Hybrid\Tools\Traits\Macroable;
 use RuntimeException;
 use Throwable;
+use function Hybrid\Tools\tap;
+use function Hybrid\Tools\value;
 
 class Repository {
 

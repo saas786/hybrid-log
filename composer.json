@@ -23,8 +23,14 @@
 		"monolog/monolog": "^3.0",
 		"psr/log": "^1.0 || ^2.0 || ^3.0"
 	},
+	"require-dev": {
+		"alvarodelera/pest-wp-plugin": "^2.0",
+		"pestphp/pest": "^5.0",
+		"themehybrid/hybrid-contracts": "dev-dev",
+		"themehybrid/hybrid-tools": "dev-dev"
+	},
 	"provide": {
-		"psr/log-implementation": "^1.0 || 2.0 || 3.0"
+		"psr/log-implementation": "1.0 || 2.0 || 3.0"
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
@@ -36,7 +42,17 @@
 			"src/functions-helpers.php"
 		]
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"Hybrid\\Log\\Tests\\": "tests/"
+		}
+	},
 	"config": {
-		"sort-packages": true
+		"allow-plugins": {
+			"pestphp/pest-plugin": true
+		}
+	},
+	"scripts": {
+		"test": "pest"
 	}
 }
