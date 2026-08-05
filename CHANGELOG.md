@@ -2,6 +2,26 @@
 
 You can see the changes made via the [commit log](https://github.com/themehybrid/hybrid-log/commits/main) for the latest release.
 
+## [1.0.0-beta.6] - 2026-08-05
+
+### Added
+
+- Pest test suite covering `Logger`, `LogManager`, the context `Repository`, and log configuration parsing.
+- Development dependencies on `pestphp/pest`, `alvarodelera/pest-wp-plugin`, `themehybrid/hybrid-tools`, and `themehybrid/hybrid-contracts`, plus a `composer test` script.
+
+### Fixed
+
+- `Hybrid\Log\Context\Repository` called `value()` and `tap()` unqualified, which resolved to the global namespace instead of `Hybrid\Tools`. This made `get()`, `getHidden()`, `pull()`, `pullHidden()`, `remember()`, `rememberHidden()`, `increment()`, and `decrement()` fatal on every call.
+
+### Removed
+
+- Duplicate, unreachable declaration of the `logs()` helper in `functions-helpers.php`. Its return type has been moved onto the remaining declaration.
+
+### Changed
+
+- Corrected the `psr/log-implementation` constraint in `provide`, which used a caret range that carries no meaning there.
+- Rewrote the README around installation, channel configuration, the `Log` and `Context` APIs, and the helper functions.
+
 ## [1.0.0-beta.5] - 2026-06-02
 
 ### Changed
